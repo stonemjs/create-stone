@@ -1,0 +1,40 @@
+{
+  "name": "@stone-js/create",
+  "version": "0.0.0",
+  "description": "create-stone is a tool to quickly start a Stone's project from a basic template",
+  "author": "Mr. Stone <evensstone@gmail.com>",
+  "license": "Apache-2.0",
+  "repository": "git@github.com:stonemjs/create-stone.git",
+  "homepage": "https://github.com/stonemjs/create-stone#readme",
+  "bugs": {
+    "url": "https://github.com/stonemjs/create-stone/issues"
+  },
+  "keywords": [
+    "Stone.js",
+    "Starter",
+    "Templates",
+    "Initializer",
+    "Scaffolding"
+  ],
+  "files": [
+    "bin"
+  ],
+  "bin": {
+    "create-stone": "bin/create-stone.mjs"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6",
+    "@stone-js/cli": "^0.0.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0"
+  }
+}
