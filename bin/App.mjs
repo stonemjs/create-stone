@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import chalk from 'chalk'
 import path from 'node:path'
 import inquirer from 'inquirer'
@@ -28,9 +27,7 @@ export class App {
     this.#questionnaire
       .getAnswers()
       .then(this.#createProjectStructure)
-      .catch(e => {
-        console.log(e.message)
-      })
+      .catch(e => console.log(e.message))
   }
 
   get argTargetDir () {

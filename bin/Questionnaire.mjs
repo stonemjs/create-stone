@@ -21,7 +21,7 @@ export class Questionnaire {
       {
         type: 'confirm',
         name: 'overwrite',
-        message: ({ projectName }) => this.#getConfirmMessage(projectName),
+        message: ({ projectName }) => this.#getOverwriteMessage(projectName),
         when: ({ projectName }) => !this.#app.isTargetDirEmpty(projectName),
       },
       {
@@ -40,9 +40,9 @@ export class Questionnaire {
         default: ({ projectName }) => {
           return this.#app.toValidPackageName(this.#app.toValidProjectName(projectName))
         },
-        when: (inquirer) => {
-          const projectName = this.#app.toValidPackageName(this.#app.toValidProjectName(inquirer.projectName))
-          inquirer.packageName = this.#app.toValidPackageName(projectName)
+        when: (answers) => {
+          const projectName = this.#app.toValidPackageName(this.#app.toValidProjectName(answers.projectName))
+          answers.packageName = this.#app.toValidPackageName(projectName)
           return !this.#app.isValidPackageName(projectName)
         },
         validate: (input) => this.#app.isValidPackageName(input) || 'Invalid package.json name'
@@ -55,10 +55,25 @@ export class Questionnaire {
         message: ({ template }) => this.#getTemplateMessage(template),
         when: ({ template }) => !this.#templates.includes(template),
       },
+      {
+        type: 'confirm',
+        name: 'confirmation',
+        message: (answers) => this.#getConfirmationMessage(answers),
+      },
+      {
+        type: 'confirm',
+        name: 'confirmationChecker',
+        when: ({ confirmation }) => {
+          if (confirmation === false) {
+            throw new Error(this.#chalk.red('✖') + ' Operation cancelled.')
+          }
+          return false
+        }
+      },
     ], this.#app.userInputs)
   }
 
-  #getConfirmMessage (value) {
+  #getOverwriteMessage (value) {
     const message = value === '.' ? 'Current directory' : `Target directory "${value}"`
     return `${message} is not empty. Remove existing files and continue?`
   }
@@ -67,5 +82,12 @@ export class Questionnaire {
     return value && !this.#templates.includes(value)
       ? `"${value}" isn't a valid stater. Please choose from below: `
       : 'Choose a starter: '
+  }
+
+  #getConfirmationMessage (answers) {
+    const message = { ...answers }
+    message.projectName = this.#app.toValidProjectName(message.projectName)
+    return `Project will be generate with the below configurations: \n ${this.#chalk.blue(JSON.stringify(message))} \n Do you confirm?
+    `
   }
 }
