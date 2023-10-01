@@ -12,6 +12,7 @@ export class App {
 
   constructor () {
     this.#cli = new Command()
+    this.defaultTemplate = 'stone'
     this.defaultTargetDir = 'stone-project'
     this.#questionnaire = new Questionnaire({ app: this, inquirer, templates, chalk })
 
@@ -25,7 +26,7 @@ export class App {
   init () {
     this.#questionnaire
       .getAnswers()
-      .then(this.#createProjectStructure)
+      .then(this.#createProject)
       .catch(e => console.log(e.message))
   }
 
@@ -37,10 +38,14 @@ export class App {
     return this.#cli.opts().template
   }
 
+  get argYes () {
+    return this.#cli.opts().yes
+  }
+
   get userInputs () {
     return {
-      template: this.argTemplate,
-      projectName: this.argTargetDir,
+      template: this.argYes === true ? this.defaultTemplate : this.argTemplate,
+      projectName: this.argYes === true ? this.defaultTargetDir : this.argTargetDir,
     }
   }
 
@@ -75,15 +80,15 @@ export class App {
       .description("CLI to quickly start a Stone's project from a basic template")
       .version('1.0.0')
       .argument('[project-name]', 'your project name')
-      .option('-y, --yes', 'reply yes for all questions')
+      .option('-y, --yes', 'create with default values')
       .option('-t, --template <string>', 'template name')
       .showHelpAfterError()
       .parse()
   }
 
-  #createProjectStructure (answers) {
+  #createProject (config) {
     ProjectBuilder
-      .getInstance({ answers })
+      .getInstance({ config })
       .build()
   }
 }

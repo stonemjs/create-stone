@@ -1,7 +1,7 @@
 {
   "name": "@stone-js/create",
-  "version": "0.0.1",
-  "description": "create-stone is a tool to quickly start a project from a basic template",
+  "version": "1.0.0",
+  "description": "create-stone is a tool to quickly start a Stone's project from a basic template",
   "main": "bin/index.mjs",
   "type": "module",
   "bin": {

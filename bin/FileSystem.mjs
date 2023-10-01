@@ -11,16 +11,24 @@ export class FileSystem {
     return path.relative(from, to)
   }
 
-  static rename (oldPath, newPath, callback = () => {}) {
-    return fs.rename(oldPath, newPath, callback)
+  static join (...paths) {
+    return path.join(...paths)
   }
 
-  static getPathFromCurrent (...paths) {
-    return path.resolve(...[url.fileURLToPath(import.meta.url), ...paths])
+  static rename (oldPath, newPath) {
+    return fs.renameSync(oldPath, newPath)
   }
 
-  static rootDir (name) {
-    return path.join(this.cwd(), name)
+  static dirname () {
+    return url.fileURLToPath(import.meta.url)
+  }
+
+  static resolveFromDirname (...paths) {
+    return path.resolve(...[this.dirname(), ...paths])
+  }
+
+  static rootDir (...names) {
+    return path.join(...[this.cwd(), ...names])
   }
 
   static readDir (dir) {

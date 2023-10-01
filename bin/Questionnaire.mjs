@@ -43,9 +43,8 @@ export class Questionnaire {
           return this.#app.toValidPackageName(this.#app.toValidProjectName(projectName))
         },
         when: (answers) => {
-          const projectName = this.#app.toValidPackageName(this.#app.toValidProjectName(answers.projectName))
-          answers.packageName = this.#app.toValidPackageName(projectName)
-          return !this.#app.isValidPackageName(projectName)
+          answers.packageName = this.#app.toValidPackageName(this.#app.toValidProjectName(answers.projectName))
+          return !this.#app.isValidPackageName(answers.packageName)
         },
         validate: (input) => this.#app.isValidPackageName(input) || 'Invalid package.json name'
       },

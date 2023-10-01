@@ -2,10 +2,10 @@ import { execSync } from 'child_process'
 import { FileSystem } from './FileSystem.mjs'
 
 export class ProjectBuilder {
-  #answers
+  #config
 
-  constructor ({ answers }) {
-    this.#answers = answers
+  constructor ({ config }) {
+    this.#config = config
   }
 
   static getInstance (params) {
@@ -13,7 +13,7 @@ export class ProjectBuilder {
   }
 
   get #root () {
-    return FileSystem.rootDir(this.#answers.projectName)
+    return FileSystem.rootDir(this.#config.projectName)
   }
 
   build () {
@@ -31,8 +31,8 @@ export class ProjectBuilder {
   }
 
   #makeDir () {
-    if (this.#answers.overwrite) {
-      // FileSystem.emptyDir(this.#root)
+    if (this.#config.overwrite) {
+      FileSystem.emptyDir(this.#root)
     } else {
       FileSystem.mkdirSync(this.#root, { recursive: true })
     }
@@ -47,13 +47,13 @@ export class ProjectBuilder {
       FileSystem.writeOrCopy(this.#getTemplateDir(), this.#root, file)
     }
 
-    FileSystem.editFile(FileSystem.rootDir('package.json'), content => {
+    FileSystem.editFile(FileSystem.join(this.#root, 'package.json'), content => {
       const pkg = JSON.parse(content)
-      pkg.name = this.#answers.packageName
+      pkg.name = this.#config.packageName
       return `${JSON.stringify(pkg, null, 2)}\n`
     })
 
-    FileSystem.rename(FileSystem.rootDir('_gitignore'), FileSystem.rootDir('.gitignore'))
+    FileSystem.rename(FileSystem.join(this.#root, '_gitignore'), FileSystem.join(this.#root, '.gitignore'))
   
     return this
   }
@@ -89,7 +89,7 @@ export class ProjectBuilder {
   }
 
   #getTemplateDir () {
-    return FileSystem.getPathFromCurrent('../../', `template-${this.#answers.template}`)
+    return FileSystem.resolveFromDirname('../../', `template-${this.#config.template}`)
   }
 
   #getPkgManager () {
