@@ -2,12 +2,13 @@
   "name": "@stone-js/create",
   "version": "0.0.1",
   "description": "create-stone is a tool to quickly start a project from a basic template",
+  "main": "bin/index.mjs",
   "type": "module",
   "bin": {
-    "create-stone": "index.mjs"
+    "create-stone": "bin/index.mjs"
   },
   "files": [
-    "index.mjs",
+    "bin",
     "template-*"
   ],
   "scripts": {
@@ -28,5 +29,10 @@
   "bugs": {
     "url": "https://github.com/stonemjs/create-stone/issues"
   },
-  "homepage": "https://github.com/stonemjs/create-stone#readme"
+  "homepage": "https://github.com/stonemjs/create-stone#readme",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.11"
+  }
 }
