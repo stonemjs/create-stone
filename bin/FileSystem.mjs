@@ -1,7 +1,36 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import url from 'node:url'
 
 export class FileSystem {
+  static cwd () {
+    return process.cwd()
+  }
+
+  static relative (from, to) {
+    return path.relative(from, to)
+  }
+
+  static rename (oldPath, newPath, callback = () => {}) {
+    return fs.rename(oldPath, newPath, callback)
+  }
+
+  static getPathFromCurrent (...paths) {
+    return path.resolve(...[url.fileURLToPath(import.meta.url), ...paths])
+  }
+
+  static rootDir (name) {
+    return path.join(this.cwd(), name)
+  }
+
+  static readDir (dir) {
+    return fs.readdirSync(dir)
+  }
+
+  static mkdirSync (path, options) {
+    fs.mkdirSync(path, options)
+  }
+
   static isDirEmpty (dir) {
     if (!fs.existsSync(dir)) return true
     const files = fs.readdirSync(dir)
@@ -13,6 +42,19 @@ export class FileSystem {
     for (const file of fs.readdirSync(dir)) {
       if (file === '.git') { continue }
       fs.rmSync(path.resolve(dir, file), { recursive: true, force: true })
+    }
+  }
+
+  static write (file, content) {
+    fs.writeFileSync(file, content)
+  }
+
+  static writeOrCopy (src, dest, file, content = null) {
+    const targetPath = path.join(dest, file)
+    if (content) {
+      this.write(targetPath, content)
+    } else {
+      this.copy(path.join(src, file), targetPath)
     }
   }
 

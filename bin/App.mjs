@@ -3,9 +3,8 @@ import path from 'node:path'
 import inquirer from 'inquirer'
 import { Command } from 'commander'
 import templates from './templates.mjs'
-import { execSync } from 'child_process'
 import { Questionnaire } from './Questionnaire.mjs'
-import { FileSystem } from './FileSystem.mjs'
+import { ProjectBuilder } from './ProjectBuilder.mjs'
 
 export class App {
   #cli
@@ -38,10 +37,6 @@ export class App {
     return this.#cli.opts().template
   }
 
-  get targetDir () {
-    return this.toValidProjectName(this.argTargetDir || this.defaultTargetDir || '')
-  }
-
   get userInputs () {
     return {
       template: this.argTemplate,
@@ -69,35 +64,8 @@ export class App {
       .replace(/[^a-z\d\-~]+/g, '-')
   }
 
-  isTargetDirEmpty (value = null) {
-    return FileSystem.isDirEmpty(value ?? this.targetDir)
-  }
-
   isValidPackageName (value) {
     return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(value)
-  }
-
-  makeLicense ({ license, author }) {
-    execSync(`npx license ${license} -o "${author}" > LICENSE`)
-  }
-  
-  makeGitIgnore ({ type = 'node' }) {
-    execSync(`npx gitignore ${type}`)
-  }
-  
-  makeCodeOfConduct ({ email }) {
-    execSync(`npx covgen ${email}`)
-  }
-  
-  makeGitInit () {
-    execSync('git init')
-  }
-  makeGitInitialCommit () {
-    execSync('git add . && git commit -m "Initial commit"')
-  }
-  
-  makeNpmLegacyInit () {
-    execSync('npm init -y')
   }
 
   #initCommander () {
@@ -114,6 +82,8 @@ export class App {
   }
 
   #createProjectStructure (answers) {
-    console.log('The answers', answers)
+    ProjectBuilder
+      .getInstance({ answers })
+      .build()
   }
 }

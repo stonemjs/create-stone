@@ -1,3 +1,5 @@
+import { FileSystem } from "./FileSystem.mjs"
+
 export class Questionnaire {
   #app
   #chalk
@@ -22,7 +24,7 @@ export class Questionnaire {
         type: 'confirm',
         name: 'overwrite',
         message: ({ projectName }) => this.#getOverwriteMessage(projectName),
-        when: ({ projectName }) => !this.#app.isTargetDirEmpty(projectName),
+        when: ({ projectName }) => !FileSystem.isDirEmpty(projectName),
       },
       {
         type: 'confirm',
@@ -86,7 +88,8 @@ export class Questionnaire {
 
   #getConfirmationMessage (answers) {
     const message = { ...answers }
-    message.projectName = this.#app.toValidProjectName(message.projectName)
+    message.projectName = undefined
+    message.targetDir = answers.projectName
     return `Project will be generate with the below configurations: \n ${this.#chalk.blue(JSON.stringify(message))} \n Do you confirm?
     `
   }
