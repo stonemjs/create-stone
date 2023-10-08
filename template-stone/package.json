@@ -20,7 +20,6 @@
   "author": "Mr Stone <pierre.evens16@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "lodash": "^4.17.21",
     "@babel/core": "^7.22.20",
     "@babel/eslint-parser": "^7.22.15",
     "@babel/plugin-proposal-decorators": "^7.22.10",
@@ -30,18 +29,22 @@
     "babel-plugin-istanbul": "^6.1.1",
     "chai": "^4.3.8",
     "clean-webpack-plugin": "^4.0.0",
-    "node-polyfill-webpack-plugin": "^2.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^7.12.1",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
+    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "nyc": "^15.1.0",
     "sinon": "^16.0.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-import-glob": "^2.0.0"
+  },
+  "dependencies": {
+    "@stone-js/core": "^1.0.2"
   }
 }
