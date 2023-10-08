@@ -1,7 +1,6 @@
 import chalk from 'chalk'
 import path from 'node:path'
 import inquirer from 'inquirer'
-import pkg from '../package.json'
 import { Command } from 'commander'
 import templates from './templates.mjs'
 import { Questionnaire } from './Questionnaire.mjs'
@@ -13,8 +12,8 @@ import { ProjectBuilder } from './ProjectBuilder.mjs'
  * @author Mr. Stone <pierre.evens16@gmail.com>
  */
 export class App {
-  static VERSION = pkg.version
-
+  static VERSION = '1.0.0'
+  
   #cli
   #questionnaire
 
