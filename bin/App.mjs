@@ -1,6 +1,7 @@
 import chalk from 'chalk'
 import path from 'node:path'
 import inquirer from 'inquirer'
+import pkg from '../package.json'
 import { Command } from 'commander'
 import templates from './templates.mjs'
 import { Questionnaire } from './Questionnaire.mjs'
@@ -82,8 +83,8 @@ export class App {
     this
       .#cli
       .name('create-stone')
-      .description("CLI to quickly start a Stone's project from a basic template")
-      .version('1.0.0')
+      .description("CLI to quickly start a Stone's project from a basic template.")
+      .version(pkg.version)
       .argument('[project-name]', 'your project name')
       .option('-y, --yes', 'create with default values')
       .option('-t, --template <string>', 'template name')
