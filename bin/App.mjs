@@ -13,6 +13,8 @@ import { ProjectBuilder } from './ProjectBuilder.mjs'
  * @author Mr. Stone <pierre.evens16@gmail.com>
  */
 export class App {
+  static VERSION = pkg.version
+
   #cli
   #questionnaire
 
@@ -84,7 +86,7 @@ export class App {
       .#cli
       .name('create-stone')
       .description("CLI to quickly start a Stone's project from a basic template.")
-      .version(pkg.version)
+      .version(App.VERSION)
       .argument('[project-name]', 'your project name')
       .option('-y, --yes', 'create with default values')
       .option('-t, --template <string>', 'template name')
