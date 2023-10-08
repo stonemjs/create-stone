@@ -6,6 +6,11 @@ import templates from './templates.mjs'
 import { Questionnaire } from './Questionnaire.mjs'
 import { ProjectBuilder } from './ProjectBuilder.mjs'
 
+/**
+ * Class representing an App.
+ *
+ * @author Mr. Stone <pierre.evens16@gmail.com>
+ */
 export class App {
   #cli
   #questionnaire
