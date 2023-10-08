@@ -47,4 +47,4 @@ for (const module of modules) {
 /**
  * Launch app
  */
-export default Application.launch(configurations)
+export const App = Application.launch(configurations)

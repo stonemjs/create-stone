@@ -1,4 +1,3 @@
-const _ = require('lodash')
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
@@ -16,8 +15,8 @@ module.exports = (env) => {
       libraryTarget: 'umd',
       filename: 'index.js',
       globalObject: 'this',
+      library: 'StoneJS',
       path: path.resolve(__dirname, 'dist'),
-      library: _.upperFirst(_.camelCase(require('./package.json').name)),
     },
     module: {
       rules: [
@@ -32,6 +31,10 @@ module.exports = (env) => {
           use: 'webpack-import-glob'
         },
       ]
+    },
+    devServer: {
+      port: 3300,
+      static: path.resolve(__dirname, './public'),
     }
   }
 }

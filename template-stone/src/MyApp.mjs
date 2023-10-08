@@ -8,5 +8,6 @@ export class MyApp {
 
   run () {
     console.log('This is my awesome app in:', this.app.getEnvironment())
+    return this.app
   }
 }

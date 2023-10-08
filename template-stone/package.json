@@ -10,7 +10,7 @@
     "build": "webpack --env prod",
     "build:dev": "webpack --env dev",
     "start": "npm run build && node ./dist/index.js",
-    "dev": "npm run build:dev && node ./dist/index.js",
+    "dev": "npm run build:dev && webpack serve --mode development",
     "test": "npm run lint:test && mocha --experimental-modules --no-warnings -r tests/setup.mjs tests/*.spec.mjs tests/**/*.spec.mjs",
     "test:html": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text npm run test",
     "test:lcov": "cross-env NODE_ENV=test nyc --reporter=lcovonly --reporter=text npm run test",
@@ -35,7 +35,6 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "nyc": "^15.1.0",
@@ -45,6 +44,7 @@
     "webpack-import-glob": "^2.0.0"
   },
   "dependencies": {
-    "@stone-js/core": "^1.0.2"
+    "@stone-js/core": "^1.0.2",
+    "webpack-dev-server": "^4.15.1"
   }
 }
