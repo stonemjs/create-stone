@@ -57,8 +57,10 @@ Thumbs.db
 # local env files
 .env
 .env.dev
+.env.pub
 .env.prod
 .env.local
+.env.public
 .env.*.local
 .env.staging
 .env.production

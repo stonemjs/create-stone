@@ -1,6 +1,7 @@
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+const { DotenvWebpack } = require('@stone-js/dotenv-webpack-plugin')
 
 module.exports = (env) => {
   return {
@@ -10,6 +11,11 @@ module.exports = (env) => {
     plugins: [
       new CleanWebpackPlugin(),
       new NodePolyfillPlugin(),
+      new DotenvWebpack({
+        expand: true,
+        path: './.env.pub',
+        prefix: 'process.__env__',
+      }),
     ],
     output: {
       libraryTarget: 'umd',

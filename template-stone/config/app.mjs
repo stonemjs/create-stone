@@ -1,22 +1,23 @@
+import { Env } from "@stone-js/env";
+
 export const app = {
   /**
-   * The environnement
-   * Ex: production, staging, developement, local
+   * App environnement(production, staging, developement, local)
    */
-  env: 'local',
+  env: Env.string('APP_ENV', 'local'),
 
   /**
    * Debug mode
    */
-  debug: false,
+  debug: Env.boolean('APP_DEBUG', false),
 
   /**
    * Current app locale
    */
-  locale: 'en',
+  locale: Env.string('APP_LOCALE', 'en'),
   
   /**
    * Fallback locale
    */
-  fallbackLocale: 'en',
+  fallbackLocale: Env.string('APP_FALLBACK_LOCALE', 'en'),
 }
