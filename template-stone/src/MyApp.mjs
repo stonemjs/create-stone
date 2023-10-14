@@ -2,8 +2,8 @@ import { AppModule } from '@stone-js/core'
 
 @AppModule()
 export class MyApp {
-  constructor ({ app }) {
-    this.context = app
+  constructor ({ ctx }) {
+    this.context = ctx
   }
 
   run () {

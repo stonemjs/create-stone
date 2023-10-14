@@ -12,7 +12,7 @@
     "lint:fix": "standard --fix src tests",
     "build": "webpack --env prod",
     "build:dev": "webpack --env dev",
-    "start": "npm run build && node ./dist/index.js",
+    "start": "npm run build && node -r dotenv-expand/config ./dist/index.js",
     "dev": "npm run build:dev && webpack serve --mode development",
     "test": "npm run lint:test && mocha --experimental-modules --no-warnings -r tests/setup.mjs tests/*.spec.mjs tests/**/*.spec.mjs",
     "test:html": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text npm run test",
@@ -21,7 +21,7 @@
     "test:text": "cross-env NODE_ENV=test nyc --reporter=text npm run test"
   },
   "dependencies": {
-    "@stone-js/core": "^1.0.3",
+    "@stone-js/core": "^1.0.4",
     "@stone-js/env": "^1.0.0"
   },
   "devDependencies": {
@@ -42,6 +42,8 @@
     "nyc": "^15.1.0",
     "sinon": "^16.0.0",
     "standard": "^17.1.0",
+    "dotenv": "^16.3.1",
+    "dotenv-expand": "^10.0.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
