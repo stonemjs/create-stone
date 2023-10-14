@@ -21,7 +21,7 @@
     "test:text": "cross-env NODE_ENV=test nyc --reporter=text npm run test"
   },
   "dependencies": {
-    "@stone-js/core": "^1.0.2",
+    "@stone-js/core": "^1.0.3",
     "@stone-js/env": "^1.0.0"
   },
   "devDependencies": {

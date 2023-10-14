@@ -2,6 +2,20 @@
   "name": "@stone-js/create",
   "version": "1.0.0",
   "description": "create-stone is a tool to quickly start a Stone's project from a basic template",
+  "author": "Mr. Stone <pierre.evens16@gmail.com>",
+  "license": "MIT",
+  "repository": "git@github.com:stonemjs/create-stone.git",
+  "homepage": "https://github.com/stonemjs/create-stone#readme",
+  "keywords": [
+    "StoneJS",
+    "Starter",
+    "Templates",
+    "Initializer",
+    "Scaffolding"
+  ],
+  "bugs": {
+    "url": "https://github.com/stonemjs/create-stone/issues"
+  },
   "main": "bin/index.mjs",
   "type": "module",
   "bin": {
@@ -11,26 +25,6 @@
     "bin",
     "template-*"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stonemjs/create-stone.git"
-  },
-  "keywords": [
-    "StoneJS",
-    "Starter",
-    "Templates",
-    "Initializer",
-    "Scaffolding"
-  ],
-  "author": "Mr. Stone <pierre.evens16@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/stonemjs/create-stone/issues"
-  },
-  "homepage": "https://github.com/stonemjs/create-stone#readme",
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.0.0",

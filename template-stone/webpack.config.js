@@ -10,7 +10,9 @@ module.exports = (env) => {
     devtool: env.dev && 'inline-source-map',
     plugins: [
       new CleanWebpackPlugin(),
-      new NodePolyfillPlugin(),
+      new NodePolyfillPlugin({
+        includeAliases: ['events']
+      }),
       new DotenvWebpack({
         expand: true,
         path: './.env.pub',
