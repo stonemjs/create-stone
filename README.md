@@ -1,6 +1,6 @@
 # create-stone
 
-## Scaffolding Your First Vite Project
+## Scaffolding Your First Stone Project
 
 This tool allow you to quickly start a project from a basic template.
 
