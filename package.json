@@ -1,11 +1,14 @@
 {
   "name": "@stone-js/create",
-  "version": "1.0.1",
+  "version": "0.0.1",
   "description": "create-stone is a tool to quickly start a Stone's project from a basic template",
   "author": "Mr. Stone <pierre.evens16@gmail.com>",
   "license": "MIT",
   "repository": "git@github.com:stonemjs/create-stone.git",
   "homepage": "https://github.com/stonemjs/create-stone#readme",
+  "bugs": {
+    "url": "https://github.com/stonemjs/create-stone/issues"
+  },
   "keywords": [
     "StoneJS",
     "Starter",
@@ -13,24 +16,81 @@
     "Initializer",
     "Scaffolding"
   ],
-  "bugs": {
-    "url": "https://github.com/stonemjs/create-stone/issues"
-  },
-  "main": "bin/index.mjs",
-  "type": "module",
-  "bin": {
-    "create-stone": "bin/index.mjs"
-  },
   "files": [
     "bin",
+    "dist",
     "template-*"
   ],
+  "bin": {
+    "create-stone": "bin/stone.mjs"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "release": "npm publish --access public"
+    "types": "tsc",
+    "lint": "standard src",
+    "lint:fix": "standard --fix src",
+    "lint:test": "standard --env jest tests",
+    "predoc": "rimraf docs",
+    "doc": "jsdoc src -r -a all -c jsdoc.json -R README.md -d docs/jsdoc",
+    "doc:serve": "npm run doc && npx http-server docs/jsdoc -p 8081",
+    "prebuild": "rimraf dist",
+    "build": "npm run lint && rollup -c && npm run types",
+    "release": "npm run test:text && npm run build && npm publish --access public",
+    "local_publish": "npm run build && npm publish --registry http://localhost:4873/",
+    "local_unpublish": "npm unpublish @stone-js/create -f --registry http://localhost:4873",
+    "test": "npm run lint:test && jest",
+    "test:cvg": "npm run lint:test && jest --coverage",
+    "test:text": "npm run test:cvg -- --coverageReporters=text",
+    "test:html": "npm run test:cvg -- --coverageReporters=html text",
+    "test:lcov": "npm run test:cvg -- --coverageReporters=lcov text"
   },
   "dependencies": {
-    "chalk": "^5.3.0",
-    "commander": "^11.0.0",
-    "inquirer": "^9.2.11"
+    "@stone-js/adapters": "^0.0.1",
+    "@stone-js/cli": "^0.0.1",
+    "fs-extra": "^11.2.0",
+    "simple-git": "^3.24.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/eslint-parser": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-multi-entry": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@stone-js/common": "^0.0.1",
+    "@stone-js/config": "^0.0.1",
+    "@stone-js/pipeline": "^0.0.1",
+    "@stone-js/service-container": "^0.0.1",
+    "babel-jest": "^29.7.0",
+    "docdash": "^2.0.2",
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.2",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.1.5",
+    "rollup-plugin-node-externals": "^6.1.2",
+    "standard": "^17.1.0"
+  },
+  "standard": {
+    "parser": "@babel/eslint-parser",
+    "globals": [
+      "it",
+      "jest",
+      "test",
+      "expect",
+      "describe",
+      "afterEach",
+      "beforeEach"
+    ]
   }
 }

@@ -1,6 +1,7 @@
 import fs from 'node:fs'
-import path from 'node:path'
+import os from 'node:os'
 import url from 'node:url'
+import path from 'node:path'
 
 export class FileSystem {
   static cwd () {
@@ -15,12 +16,16 @@ export class FileSystem {
     return path.join(...paths)
   }
 
+  static tempDir () {
+    return os.tmpdir()
+  }
+
   static rename (oldPath, newPath) {
     return fs.renameSync(oldPath, newPath)
   }
 
   static dirname () {
-    return url.fileURLToPath(import.meta.url)
+    return path.dirname(url.fileURLToPath(import.meta.url))
   }
 
   static resolveFromDirname (...paths) {
@@ -82,7 +87,7 @@ export class FileSystem {
 
   static copyDir (srcDir, destDir) {
     fs.mkdirSync(destDir, { recursive: true })
-    
+
     for (const file of fs.readdirSync(srcDir)) {
       const srcFile = path.resolve(srcDir, file)
       const destFile = path.resolve(destDir, file)
