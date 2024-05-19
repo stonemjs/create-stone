@@ -1,5 +1,4 @@
 import { Builder } from './Builder.mjs'
-import templates from './templates.mjs'
 import { Config } from '@stone-js/config'
 import { version } from '../package.json'
 import { builderPipes } from './pipes.mjs'
@@ -22,23 +21,20 @@ export class Handler {
   /**
    * Create a Stone.js console handler.
    *
-   * @param   {Object} options - Stone.js configuration options.
    * @returns {Handler}
    */
-  static create (options = {}) {
-    return new this(options)
+  static create () {
+    return new this()
   }
 
   /**
    * Create a Stone.js console handler.
-   *
-   * @param {Object} options - Stone.js configuration options.
    */
-  constructor (options = {}) {
+  constructor () {
+    this.#config = Config.create()
     this.#container = new Container()
-    this.#config = Config.create(options)
     this.#container.instance(Config, this.#config).alias(Config, 'config')
-    this.#container.singleton('inputMapper', (container) => Mapper.create(container, [CommonInputMiddleware], (passable) => IncomingEvent.create(passable.event)))
+    this.#container.singleton('inputMapper', (container) => this.#makeMapper(container))
   }
 
   /** @return {Container} */
@@ -61,32 +57,53 @@ export class Handler {
    * @returns
    */
   async handle (event) {
-    // Register components
-    this.#addOptions(event)
+    // Initialize project options
+    this.#initProjectOptions(event)
 
-    // Launch questionnaire on defaults false
-    if (!event.get('yes', false)) {
-      // Launch questionnaire and put answers to config
-      const answers = await Questionnaire.create(this.#container).getAnswers()
-      // Add answers to config
-      this.#config.set('project', answers)
+    try {
+      // Launch questionnaire on defaults false
+      if (!event.get('yes', false)) {
+        // Launch questionnaire and put answers to config
+        const answers = await Questionnaire.create(this.#container).getAnswers()
+        // Add answers to config
+        this.#config.set('project', answers)
+      }
+
+      // Build Stone App
+      await Builder.create(this.#container, builderPipes).build()
+    } catch (error) {
+      this.#container.output.error(error.message)
     }
-
-    // Build Stone App
-    await Builder.create(this.#container, builderPipes).build()
   }
 
   /**
-   * Register components.
+   * Make adapter's mapper.
    *
-   * @param {IncomingEvent} event.
+   * @param   {Container} container
+   * @returns {Mapper}
+   */
+  #makeMapper (container) {
+    return Mapper.create(
+      container,
+      [CommonInputMiddleware],
+      ({ event }) => IncomingEvent.create(event)
+    )
+  }
+
+  /**
+   * Initialize project options.
+   *
+   * @param {IncomingEvent} event
    * @returns
    */
-  #addOptions (event) {
-    this.#config.set('templates', templates)
-    this.#config.set('project.defaultDir', 'stone-project')
-    this.#config.set('project.defaultTemplate', 'basic-vanilla')
-    this.#config.set('project.template', event.get('template'))
+  #initProjectOptions (event) {
+    this.#config.set('project.initGit', true)
+    this.#config.set('project.testing', 'mocha')
+    this.#config.set('project.typing', 'vanilla')
+    this.#config.set('project.template', 'basic')
+    this.#config.set('project.linting', 'standard')
+    this.#config.set('project.packageManager', 'npm')
+    this.#config.set('project.overwrite', event.get('force'))
     this.#config.set('project.projectName', event.get('project-name'))
   }
 
@@ -99,29 +116,32 @@ export class Handler {
   #registerCommand (builder) {
     builder
       .command({
-        command: 'create-stone [project-name]',
-        aliases: ['c'],
-        desc: "CLI to quickly start a Stone's project from a basic template.",
+        command: '$0 [project-name]',
+        desc: "CLI to quickly start a Stone's project from a starter template.",
         builder: (yargs) => {
           return yargs
             .positional('project-name', {
               type: 'string',
+              default: 'stone-project',
               desc: 'your project name'
             })
             .option('yes', {
               alias: 'y',
+              default: false,
               type: 'boolean',
               desc: 'create with default values'
             })
-            .option('template <string>', {
-              alias: 't',
-              type: 'string',
+            .option('force', {
+              alias: 'f',
               default: false,
-              desc: 'template name'
+              type: 'boolean',
+              desc: 'Force overwriting'
             })
         }
       })
       .help()
       .version(version)
+      .scriptName('create-stone')
+      .demandCommand(1, 'You need at least one command before moving on')
   }
 }

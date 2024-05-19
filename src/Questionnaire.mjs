@@ -1,5 +1,6 @@
 import templates from './templates.mjs'
-import { FileSystem } from './FileSystem.mjs'
+import { basePath } from '@stone-js/common'
+import { pathExistsSync } from 'fs-extra/esm'
 
 /**
  * Class representing a Questionnaire.
@@ -17,8 +18,8 @@ export class Questionnaire {
    * @param   {Container} container
    * @returns {Questionnaire}
    */
-  static create (options = {}) {
-    return new this(options)
+  static create (container) {
+    return new this(container)
   }
 
   /**
@@ -67,8 +68,8 @@ export class Questionnaire {
   /** @returns {Object[]} */
   get #lintingTools () {
     return [
-      { value: 'none', name: 'None' },
-      { value: 'standard', name: 'Standard' },
+      { value: null, name: 'None' },
+      { value: 'standard', name: 'Eslint (Standard)' },
       { value: 'prettier', name: 'Prettier' }
     ]
   }
@@ -76,8 +77,9 @@ export class Questionnaire {
   /** @returns {Object[]} */
   get #testingFramework () {
     return [
-      { value: 'none', name: 'None' },
-      { value: 'jest', name: 'Jest' }
+      { value: null, name: 'None' },
+      { value: 'jest', name: 'Jest' },
+      { value: 'mocha', name: 'Mocha' }
     ]
   }
 
@@ -91,7 +93,7 @@ export class Questionnaire {
       modules: 'Stone modules: ',
       linting: 'Linting tools: ',
       testing: 'Testing framework: ',
-      initGit: 'Init Git?',
+      initGit: 'Init Git? ',
       overwrite: 'Overwrite directory: '
     }
   }
@@ -106,20 +108,20 @@ export class Questionnaire {
       {
         name: 'projectName',
         message: this.#messages.projectName,
-        default: this.#config.get('project.defaultDir')
+        default: this.#config.get('project.projectName')
       },
       {
         type: 'confirm',
         name: 'overwrite',
         message: ({ projectName }) => this.#getOverwriteMessage(projectName),
-        when: ({ projectName }) => !FileSystem.isDirEmpty(projectName)
+        when: ({ projectName }) => pathExistsSync(basePath(projectName))
       },
       {
         type: 'confirm',
         name: 'overwriteChecker',
         when: ({ overwrite }) => {
           if (overwrite === false) {
-            throw new Error(`${this.#format.red('✖')} Operation cancelled.`)
+            throw new Error('Operation cancelled.')
           }
           return false
         }
@@ -169,7 +171,7 @@ export class Questionnaire {
       {
         type: 'confirm',
         name: 'initGit',
-        message: () => this.#messages.initGit
+        message: this.#messages.initGit
       },
       {
         type: 'confirm',
@@ -181,12 +183,12 @@ export class Questionnaire {
         name: 'confirmationChecker',
         when: ({ confirmation }) => {
           if (confirmation === false) {
-            throw new Error(`${this.#format.red('✖')} Operation cancelled.`)
+            throw new Error('Operation cancelled.')
           }
           return false
         }
       }
-    ], this.#config.project)
+    ])
   }
 
   /**
@@ -195,8 +197,7 @@ export class Questionnaire {
    * @returns {string}
    */
   #getOverwriteMessage (value) {
-    const message = value === '.' ? 'Current directory' : `Target directory "${value}"`
-    return `${message} is not empty. Remove existing files and continue?`
+    return `Target directory (${basePath(value)}) is not empty. Remove existing files and continue?`
   }
 
   /**
@@ -207,8 +208,9 @@ export class Questionnaire {
   #getConfirmationMessage (answers) {
     const message = Object
       .entries(answers)
-      .filter(([, value]) => !!value)
-      .reduce((prev, [key, value]) => `${prev}\n${this.#messages[key]}${JSON.stringify(value)}`, '')
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => !value ? [key, 'None'] : [key, value])
+      .reduce((prev, [key, value]) => `${prev}\n${this.#messages[key]}${value}`, '')
 
     return `Project will be generate with the below configurations: ${this.#format.blue(message)} \n Do you confirm?
     `

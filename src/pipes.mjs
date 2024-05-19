@@ -1,8 +1,9 @@
+import { join } from 'node:path'
 import simpleGit from 'simple-git'
 import { writeFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
-import { FileSystem } from './FileSystem.mjs'
-import { copySync, readJsonSync, removeSync, writeJsonSync } from 'fs-extra/esm'
+import { tmpPath, basePath } from '@stone-js/common'
+import { copySync, pathExistsSync, readJsonSync, removeSync, writeJsonSync } from 'fs-extra/esm'
 
 /**
  * Clone starter from Github
@@ -12,29 +13,34 @@ import { copySync, readJsonSync, removeSync, writeJsonSync } from 'fs-extra/esm'
  * @returns {Passable}
  */
 export const CloneStarterPipe = async (passable, next) => {
-  // Get src and dest dir
-  const tmpDir = FileSystem.join(FileSystem.tempDir(), 'stone-js-starters')
-  const destDir = FileSystem.rootDir(passable.config.get('projectName', 'stone-project'))
-  const srcDir = FileSystem.join(tmpDir, passable.config.get('typing', 'vanilla'), passable.config.get('template', 'basic'))
+  const overwrite = passable.config.get('project.overwrite', false)
+  const destDir = basePath(passable.config.get('project.projectName', 'stone-project'))
+  const srcDir = tmpPath('stone-js-starters', passable.config.get('typing', 'vanilla'), passable.config.get('template', 'basic'))
 
-  // Save to config
-  passable.config.defaults('project', { destDir, srcDir, tmpDir })
+  // Do not create project when path exists and overwrite is false
+  if (!overwrite && pathExistsSync(destDir)) {
+    throw new Error(`Target directory (${destDir}) is not empty. Remove existing files and continue?`)
+  }
+
+  // Display message
+  passable.output.show(`Creating project in ${destDir}`)
+
+  // Delete starters if exists
+  removeSync(tmpPath('stone-js-starters'))
 
   // Clone starters to temp
-  passable.output.info('Cloning project...')
-  removeSync(tmpDir)
-  await simpleGit(FileSystem.tempDir()).clone('https://github.com/stonemjs/starters.git', 'stone-js-starters')
+  await simpleGit(tmpPath()).clone('https://github.com/stonemjs/starters.git', 'stone-js-starters')
 
   // Copy starter
   copySync(srcDir, destDir)
-  FileSystem.copy(srcDir, destDir)
 
-  // Delete starters
-  removeSync(tmpDir)
+  // Get package.json
+  const packageJson = readJsonSync(join(destDir, 'package.json'))
 
-  passable.output.info('Project cloned!')
-  passable.output.info(`From (${srcDir}) to ${destDir}`)
+  // Save to config
+  passable.config.defaults('project', { destDir, srcDir, packageJson })
 
+  // Next pipe
   return next(passable)
 }
 
@@ -47,58 +53,83 @@ export const CloneStarterPipe = async (passable, next) => {
  */
 export const InstallDependenciesPipe = (passable, next) => {
   const destDir = passable.config.get('project.destDir')
+  const linting = passable.config.get('project.linting')
+  const testing = passable.config.get('project.testing')
+  const modules = passable.config.get('project.modules', [])
   const manager = passable.config.get('project.packageManager', 'npm')
   const installCmd = manager === 'yarn' ? 'add' : 'install'
+  const lintingDeps = linting === 'standard' ? ['@babel/eslint-parser'] : []
+  const testingDeps = testing === 'jest' ? ['cross-env'] : ['@babel/register']
 
-  let linting = passable.config.get('project.linting', 'none')
-  let testing = passable.config.get('project.testing', 'none')
+  // Display message
+  passable.output.show('Installing packages. This might take a while...')
 
-  linting = linting === 'none' ? null : linting
-  testing = testing === 'none' ? null : testing
+  // Install modules
+  modules
+    .concat(linting, testing, lintingDeps, testingDeps)
+    .filter(module => !!module)
+    .forEach(module => {
+      execSync(`${manager} ${installCmd} ${module}`, { cwd: destDir })
+    })
 
-  passable.output.info('Installing modules')
-
-  // install Stone modules
-  passable.config.get('project.modules', []).forEach(module => {
-    execSync(`${manager} ${installCmd} ${module}`, { cwd: destDir, stdio: 'inherit' })
-  })
-
-  // Install linting
-  linting && execSync(`${manager} ${installCmd} ${linting}`, { cwd: destDir, stdio: 'inherit' })
-  linting === 'standard' && execSync(`${manager} ${installCmd} @babel/eslint-parser`, { cwd: destDir, stdio: 'inherit' })
-
-  // Install testing
-  testing && execSync(`${manager} ${installCmd} ${testing}`, { cwd: destDir, stdio: 'inherit' })
-
-  passable.output.info('Modules installed!')
-
+  // Next pipe
   return next(passable)
 }
 
 /**
- * Configure.
+ * Configure linting.
  *
  * @param   {Passable} passable - Input data to transform via middleware.
  * @param   {Function} next - Pass to next middleware.
  * @returns {Passable}
  */
-export const ConfigurePipe = async (passable, next) => {
+export const ConfigureLintingPipe = async (passable, next) => {
   const destDir = passable.config.get('project.destDir')
-  let linting = passable.config.get('project.linting', 'none')
-  let testing = passable.config.get('project.testing', 'none')
-  const packageJson = readJsonSync(FileSystem.join(destDir, 'package.json'))
+  const linting = passable.config.get('project.linting')
+  const testing = passable.config.get('project.testing')
+  const packageJson = passable.config.get('project.packageJson', {})
 
-  testing = testing === 'none' ? null : testing
-  linting = linting === 'none' ? null : linting
+  if (linting === 'standard') {
+    packageJson.scripts.lint = 'standard app'
+    if (testing === 'jest') {
+      packageJson.standard = {
+        parser: '@babel/eslint-parser',
+        globals: ['it', 'jest', 'test', 'expect', 'describe', 'afterEach', 'beforeEach']
+      }
+    }
+  } else if (linting === 'prettier') {
+    packageJson.scripts.format = 'prettier --write "app/**/*.js"'
+    packageJson.scripts['format:check'] = 'prettier --check "app/**/*.js"'
+    const prettierConfig = `
+    {
+      "singleQuote": true,
+      "semi": false
+    }
+    `
+    writeFileSync(join(destDir, '.prettierrc'), prettierConfig)
+  }
 
-  // Testing config
+  // Next pipe
+  return next(passable)
+}
+
+/**
+ * Configure testing.
+ *
+ * @param   {Passable} passable - Input data to transform via middleware.
+ * @param   {Function} next - Pass to next middleware.
+ * @returns {Passable}
+ */
+export const ConfigureTestingPipe = async (passable, next) => {
+  const testing = passable.config.get('project.testing')
+  const destDir = passable.config.get('project.destDir')
+  const packageJson = passable.config.get('project.packageJson', {})
+
   if (testing === 'jest') {
-    packageJson.scripts.test = 'jest'
+    packageJson.scripts.test = 'cross-env NODE_OPTIONS=--experimental-vm-modules jest'
     const jestConfig = {
       roots: ['app/', 'tests/'],
-      transform: {
-        '\\.m?[jt]sx?$': 'babel-jest'
-      },
+      transform: {},
       collectCoverageFrom: [
         'app/**/*.{js,mjs}'
       ],
@@ -110,50 +141,56 @@ export const ConfigurePipe = async (passable, next) => {
         }
       }
     }
-    writeJsonSync(FileSystem.join(destDir, 'jest.config.json'), jestConfig)
+    writeJsonSync(join(destDir, 'jest.config.json'), jestConfig)
+  } else if (testing === 'mocha') {
+    packageJson.scripts.test = 'mocha --require @babel/register'
   }
 
-  // Linting config
-  if (linting === 'standard') {
-    packageJson.scripts.lint = 'standard app'
-    if (testing === 'jest') {
-      packageJson.standard = {
-        parser: '@babel/eslint-parser',
-        globals: [
-          'it',
-          'jest',
-          'test',
-          'expect',
-          'describe',
-          'afterEach',
-          'beforeEach'
-        ]
-      }
-    }
-  }
+  // Next pipe
+  return next(passable)
+}
 
-  if (linting === 'prettier') {
-    packageJson.scripts.format = 'prettier --write "src/**/*.js"'
-    packageJson.scripts['format:check'] = 'prettier --check "app/**/*.js"'
-    const config = `
-    {
-      "singleQuote": true,
-      "semi": false
-    }
-    `
-    writeFileSync(FileSystem.join(destDir, '.prettierrc'), config)
-  }
+/**
+ * Finalize.
+ *
+ * @param   {Passable} passable - Input data to transform via middleware.
+ * @param   {Function} next - Pass to next middleware.
+ * @returns {Passable}
+ */
+export const FinalizePipe = async (passable, next) => {
+  const destDir = passable.config.get('project.destDir')
+  const packageJson = passable.config.get('project.packageJson', {})
+  const manager = passable.config.get('project.packageManager', 'npm')
+  const scriptPrefix = manager === 'yarn' ? 'yarn' : `${manager} run`
+  const projectName = passable.config.get('project.projectName', 'stone-project')
 
   // Write Package.json
-  writeJsonSync(FileSystem.join(destDir, 'package.json'), packageJson)
+  writeJsonSync(join(destDir, 'package.json'), packageJson)
 
   // Git init
-  await simpleGit(passable.config.get('project.destDir')).init()
+  await simpleGit(destDir).init()
 
-  passable.output.info('You can start working with Stone.js')
-  console.log(packageJson)
-  console.log(passable.config.get('project'))
+  // Display message
+  passable.output.breakLine(1)
+  passable.output.succeed(`Successfully created Stone's project ${projectName}`)
+  passable.output.show(`
+  🎉 Happy coding!
+  
+  To get started:
 
+    cd ${projectName}
+    ${scriptPrefix} start
+  
+  To build for production:
+
+    ${scriptPrefix} build
+  
+  Documentation:
+
+    Check https://stonejs.com
+  `)
+
+  // Next pipe
   return next(passable)
 }
 
@@ -161,5 +198,7 @@ export const ConfigurePipe = async (passable, next) => {
 export const builderPipes = [
   { pipe: CloneStarterPipe, priority: 0 },
   { pipe: InstallDependenciesPipe, priority: 1 },
-  { pipe: ConfigurePipe, priority: 2 }
+  { pipe: ConfigureLintingPipe, priority: 2 },
+  { pipe: ConfigureTestingPipe, priority: 2 },
+  { pipe: FinalizePipe, priority: 3 }
 ]

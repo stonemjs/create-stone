@@ -10,7 +10,7 @@
     "url": "https://github.com/stonemjs/create-stone/issues"
   },
   "keywords": [
-    "StoneJS",
+    "Stone.js",
     "Starter",
     "Templates",
     "Initializer",
@@ -22,7 +22,7 @@
     "template-*"
   ],
   "bin": {
-    "create-stone": "bin/stone.mjs"
+    "create-stone": "bin/create-stone.mjs"
   },
   "type": "module",
   "exports": {

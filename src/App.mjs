@@ -8,35 +8,22 @@ import { NodeConsoleAdapter } from '@stone-js/cli'
  * @author Mr. Stone <evensstone@gmail.com>
  */
 export class App {
-  #options
-
   /**
    * Create a Stone.js console application and run it.
    *
-   * @param   {Object} options - Stone.js configuration options.
    * @returns {Void}
    */
-  static createAndRun (options = {}) {
-    return this.create(options).run()
+  static createAndRun () {
+    return this.create().run()
   }
 
   /**
    * Create a Stone.js console application.
    *
-   * @param   {Object} options - Stone.js configuration options.
    * @returns {App}
    */
-  static create (options = {}) {
-    return new this(options)
-  }
-
-  /**
-   * Create a Stone.js console application.
-   *
-   * @param {Object} options - Stone.js configuration options.
-   */
-  constructor (options = {}) {
-    this.#options = options
+  static create () {
+    return new this()
   }
 
   /**
@@ -46,6 +33,6 @@ export class App {
    * @throws  {RuntimeError}
    */
   run () {
-    NodeConsoleAdapter.createAndRun(() => Handler.create(this.#options))
+    NodeConsoleAdapter.createAndRun(() => Handler.create())
   }
 }
