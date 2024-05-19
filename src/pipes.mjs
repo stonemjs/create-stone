@@ -19,7 +19,7 @@ export const CloneStarterPipe = async (passable, next) => {
 
   // Do not create project when path exists and overwrite is false
   if (!overwrite && pathExistsSync(destDir)) {
-    throw new Error(`Target directory (${destDir}) is not empty. Remove existing files and continue?`)
+    throw new Error(`Target directory (${destDir}) is not empty. Remove existing files and continue.`)
   }
 
   // Display message
