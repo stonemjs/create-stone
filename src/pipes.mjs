@@ -162,23 +162,27 @@ export const FinalizePipe = async (passable, next) => {
   const packageJson = passable.config.get('project.packageJson', {})
   const manager = passable.config.get('project.packageManager', 'npm')
   const scriptPrefix = manager === 'yarn' ? 'yarn' : `${manager} run`
-  const projectName = passable.config.get('project.projectName', 'stone-project')
+  const projectName = destDir.split('/').pop()
+  const changeDir = passable.config.get('project.projectName')
 
   // Write Package.json
   writeJsonSync(join(destDir, 'package.json'), packageJson)
 
-  // Git init
-  await simpleGit(destDir).init()
+  // Git
+  const git = simpleGit(destDir)
+  await git.init()
+  await git.add('.')
+  await git.commit('Initial commit')
 
   // Display message
   passable.output.breakLine(1)
-  passable.output.succeed(`Successfully created Stone's project ${projectName}`)
+  passable.output.succeed(`Successfully created Stone's project "${projectName}"`)
   passable.output.show(`
   🎉 Happy coding!
   
   To get started:
 
-    cd ${projectName}
+    cd ${changeDir}/
     ${scriptPrefix} start
   
   To build for production:
