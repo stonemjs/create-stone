@@ -61,7 +61,7 @@
     "@stone-js/common": "^0.0.1",
     "@stone-js/config": "^0.0.1",
     "@stone-js/core": "^0.0.1",
-    "@stone-js/event-foundation": "^0.0.1",
+    "@stone-js/http-core": "^0.0.1",
     "@stone-js/pipeline": "^0.0.1",
     "@stone-js/service-container": "^0.0.1",
     "fs-extra": "^11.2.0",
