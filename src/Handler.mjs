@@ -2,11 +2,11 @@ import { Builder } from './Builder.mjs'
 import { Config } from '@stone-js/config'
 import { version } from '../package.json'
 import { builderPipes } from './pipes.mjs'
-import { Mapper } from '@stone-js/adapters'
-import { IncomingEvent } from '@stone-js/common'
+import { AdapterMapper } from '@stone-js/core'
 import { Questionnaire } from './Questionnaire.mjs'
 import { CommonInputMiddleware } from '@stone-js/cli'
 import { Container } from '@stone-js/service-container'
+import { IncomingEvent } from '@stone-js/event-foundation'
 
 /**
  * Class representing a Stone.js console Handler.
@@ -80,10 +80,10 @@ export class Handler {
    * Make adapter's mapper.
    *
    * @param   {Container} container
-   * @returns {Mapper}
+   * @returns {AdapterMapper}
    */
   #makeMapper (container) {
-    return Mapper.create(
+    return AdapterMapper.create(
       container,
       [CommonInputMiddleware],
       ({ event }) => IncomingEvent.create(event)
