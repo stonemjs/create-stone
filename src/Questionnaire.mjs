@@ -151,8 +151,8 @@ export class Questionnaire {
         type: 'checkbox',
         name: 'modules',
         default: 0,
-        choices: this.#stoneModules,
-        message: this.#messages.modules
+        message: this.#messages.modules,
+        choices: ({ template }) => this.#stoneModules.filter(v => template === 'api' ? v.value !== '@stone-js/router' : true)
       },
       {
         type: 'list',

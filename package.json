@@ -55,7 +55,6 @@
   },
   "dependencies": {
     "@stone-js/cli": "^0.0.1",
-    "@stone-js/common": "^0.0.1",
     "@stone-js/config": "^0.0.1",
     "@stone-js/pipeline": "^0.0.1",
     "@stone-js/adapters": "^0.0.1",
@@ -64,6 +63,7 @@
     "simple-git": "^3.24.0"
   },
   "devDependencies": {
+    "@stone-js/common": "^0.0.1",
     "@babel/core": "^7.24.5",
     "@babel/eslint-parser": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
