@@ -5,6 +5,13 @@ All notable changes to the "Stone.js Create" extension will be documented in thi
 ## Unreleased
 
 
+## [0.1.4](https://github.com/stone-foundation/stone-js/compare/v0.1.3...v0.1.4) (2025-07-01)
+
+
+### Miscellaneous Chores
+
+* update core dependencies and project metadata ([#10](https://github.com/stone-foundation/stone-js/issues/10)) ([88ee17e](https://github.com/stone-foundation/stone-js/commit/88ee17e4c9f497ec33b0d9a2acb061dd106f9285))
+
 ## [0.1.3](https://github.com/stone-foundation/stone-js/compare/v0.1.2...v0.1.3) (2025-06-14)
 
 
